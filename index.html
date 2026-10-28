@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ICT &amp; Digital Skills — Practice Test</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --card:#ffffff;
+    --accent:#2563eb;
+    --accent-dark:#1d4ed8;
+    --text:#1e293b;
+    --muted:#64748b;
+    --danger:#dc2626;
+    --good:#16a34a;
+    --border:#e2e8f0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);
+    min-height:100vh;
+    color:var(--text);
+    padding-top:68px;
+  }
+
+  /* Fixed timer bar - always visible on every screen, regardless of scroll */
+  #timerBar{
+    position:fixed;
+    top:0; left:0; right:0;
+    height:56px;
+    background:#0f172a;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    z-index:1000;
+    box-shadow:0 2px 10px rgba(0,0,0,0.3);
+    font-weight:700;
+    letter-spacing:0.5px;
+    transition:box-shadow 0.3s;
+  }
+  #timerBar .clockIcon{
+    font-size:18px;
+    display:inline-block;
+    animation: swing 1.1s ease-in-out infinite;
+    transform-origin:50% 15%;
+  }
+  @keyframes swing{
+    0%,100%{ transform:rotate(-14deg); }
+    50%{ transform:rotate(14deg); }
+  }
+  #timerBar #timeLeft{
+    display:inline-block;
+    animation: pulseText 1s ease-in-out infinite;
+  }
+  @keyframes pulseText{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.72; }
+  }
+  #timerBar.danger{
+    animation: pulseBar 0.9s infinite;
+  }
+  @keyframes pulseBar{
+    0%,100%{ box-shadow:0 2px 10px rgba(0,0,0,0.3); }
+    50%{ box-shadow:0 2px 22px rgba(239,68,68,0.85); }
+  }
+  #timerProgressOuter{
+    position:fixed;
+    top:56px; left:0; right:0;
+    height:4px;
+    background:rgba(255,255,255,0.15);
+    z-index:999;
+    overflow:hidden;
+  }
+  #timerProgressInner{
+    height:100%;
+    width:100%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa,#2563eb);
+    background-size:200% 100%;
+    animation: shimmer 2.2s linear infinite;
+    transition:width 1s linear, background 0.3s;
+  }
+  @keyframes shimmer{
+    0%{ background-position:0% 0%; }
+    100%{ background-position:200% 0%; }
+  }
+  #timerBar.warn #timerProgressInner{ background:linear-gradient(90deg,#f97316,#fdba74,#f97316); background-size:200% 100%; }
+  #timerBar.danger #timerProgressInner{ background:linear-gradient(90deg,#ef4444,#fca5a5,#ef4444); background-size:200% 100%; }
+  #timerBar #timeLeft{
+    font-size:20px;
+    font-variant-numeric:tabular-nums;
+  }
+  #timerBar.warn{ background:#7c2d12; }
+  #timerBar.danger{ background:#7f1d1d; }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:20px 16px 60px;
+  }
+
+  /* Start screen */
+  .startCard, .resultCard{
+    background:var(--card);
+    border-radius:16px;
+    padding:32px 24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    text-align:center;
+    margin-top:40px;
+  }
+  .startCard h1, .resultCard h1{
+    font-size:22px;
+    margin:0 0 12px;
+    color:var(--text);
+  }
+  .startCard p{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.6;
+    margin:0 0 24px;
+  }
+  .startCard ul{
+    text-align:left;
+    color:var(--text);
+    font-size:14px;
+    line-height:1.9;
+    background:#f1f5f9;
+    border-radius:10px;
+    padding:16px 20px;
+    margin:0 0 24px;
+  }
+
+  .resumeBox{
+    background:#eff6ff;
+    border:2px dashed var(--accent);
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  .resumeBox .resumeText{
+    font-size:14px;
+    color:var(--text);
+    font-weight:600;
+    margin-bottom:12px;
+  }
+  .resumeBox button{
+    margin-bottom:8px;
+  }
+  .resumeBox button:last-child{
+    margin-bottom:0;
+  }
+
+  button.primary{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:16px 28px;
+    font-size:17px;
+    font-weight:700;
+    cursor:pointer;
+    width:100%;
+    transition:background 0.15s;
+  }
+  button.primary:active{ background:var(--accent-dark); }
+  button.primary:disabled{
+    background:#94a3b8;
+    cursor:not-allowed;
+  }
+
+  button.secondary{
+    background:transparent;
+    color:var(--accent);
+    border:2px solid var(--accent);
+    border-radius:12px;
+    padding:14px 28px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    width:100%;
+    margin-top:12px;
+  }
+
+  /* Question card */
+  .qCard{
+    background:var(--card);
+    border-radius:16px;
+    padding:22px 20px 24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    margin-top:16px;
+    margin-bottom:16px;
+  }
+  .navRowSticky{
+    position:sticky;
+    bottom:0;
+    background:transparent;
+    padding-top:4px;
+    padding-bottom:10px;
+  }
+  .progress{
+    color:#cbd5e1;
+    font-size:13px;
+    text-align:center;
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  .progressBarOuter{
+    height:6px;
+    background:#334155;
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .progressBarInner{
+    height:100%;
+    background:var(--accent);
+    transition:width 0.2s;
+  }
+  .qNum{
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .qText{
+    font-size:18px;
+    font-weight:600;
+    line-height:1.5;
+    margin-bottom:20px;
+    color:var(--text);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15.5px;
+    line-height:1.4;
+    background:#fff;
+    transition:border-color 0.12s, background 0.12s;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .option:active{ background:#f8fafc; }
+  .option.selected{
+    border-color:var(--accent);
+    background:#eff6ff;
+  }
+  .optLetter{
+    flex:0 0 auto;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#f1f5f9;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:13px;
+  }
+  .option.selected .optLetter{
+    background:var(--accent);
+    color:#fff;
+  }
+
+  .navRow{
+    display:flex;
+    gap:10px;
+  }
+  .navRow button{
+    flex:1;
+  }
+  button.navBtn{
+    background:#f1f5f9;
+    color:var(--text);
+    border:none;
+    border-radius:12px;
+    padding:14px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  button.navBtn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+  }
+
+  /* Result screen */
+  .scoreCircle{
+    width:140px;height:140px;
+    border-radius:50%;
+    background:conic-gradient(var(--accent) calc(var(--pct)*1%), #e2e8f0 0);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 20px;
+  }
+  .scoreCircle .inner{
+    width:112px;height:112px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+  }
+  .scoreCircle .inner .big{ font-size:26px; font-weight:800; color:var(--text); }
+  .scoreCircle .inner .small{ font-size:12px; color:var(--muted); }
+
+  .statsRow{
+    display:flex;
+    justify-content:space-around;
+    margin:20px 0 8px;
+  }
+  .statsRow .stat{ text-align:center; }
+  .statsRow .stat .num{ font-size:20px; font-weight:800; }
+  .statsRow .stat .lbl{ font-size:12px; color:var(--muted); }
+  .statsRow .stat.correct .num{ color:var(--good); }
+  .statsRow .stat.wrong .num{ color:var(--danger); }
+  .statsRow .stat.skipped .num{ color:var(--muted); }
+
+  .hidden{ display:none !important; }
+
+  /* Review / Preview section */
+  .reviewHeading{
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    text-align:center;
+    margin:28px 0 12px;
+    letter-spacing:0.3px;
+  }
+  .reviewCard{
+    background:var(--card);
+    border-radius:14px;
+    padding:18px 18px 20px;
+    margin-bottom:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+  }
+  .reviewCard .qNum{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .reviewCard .statusTag{
+    font-size:11px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:20px;
+    text-transform:uppercase;
+  }
+  .statusTag.tagCorrect{ background:#dcfce7; color:var(--good); }
+  .statusTag.tagWrong{ background:#fee2e2; color:var(--danger); }
+  .statusTag.tagSkipped{ background:#f1f5f9; color:var(--muted); }
+
+  .option.correctOpt{
+    border-color:var(--good);
+    background:#f0fdf4;
+  }
+  .option.correctOpt .optLetter{
+    background:var(--good);
+    color:#fff;
+  }
+  .option.wrongOpt{
+    border-color:var(--danger);
+    background:#fef2f2;
+  }
+  .option.wrongOpt .optLetter{
+    background:var(--danger);
+    color:#fff;
+  }
+  .option.reviewOnly{
+    cursor:default;
+  }
+
+  .scrollHint{
+    margin-top:18px;
+    font-size:13px;
+    color:var(--accent);
+    font-weight:700;
+    animation: bounce 1.4s infinite;
+  }
+  @keyframes bounce{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(4px); }
+  }
+
+  .skipRow{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:-8px;
+    margin-bottom:14px;
+  }
+  .skipBtn{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:4px 2px;
+  }
+  .option.skippedOpt{
+    /* placeholder state, no option highlighted when skipped */
+  }
+  .skippedBadge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    color:var(--muted);
+    background:#f1f5f9;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+
+  .endTestRow{
+    text-align:center;
+    margin-bottom:14px;
+  }
+  .endTestLink{
+    background:rgba(239,68,68,0.12);
+    border:2px solid #ef4444;
+    color:#fca5a5;
+    font-size:14px;
+    font-weight:700;
+    border-radius:10px;
+    cursor:pointer;
+    padding:10px 16px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .endTestLink:active{ background:rgba(239,68,68,0.3); }
+  #endModal{
+    position:fixed; inset:0; z-index:2000;
+    background:rgba(0,0,0,0.65);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #endModal .box{
+    background:#fff; border-radius:16px; padding:24px 20px;
+    max-width:380px; width:100%; text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  }
+  #endModal h3{ margin:0 0 10px; font-size:18px; color:var(--text); }
+  #endModal p{ margin:0 0 18px; font-size:14px; line-height:1.6; color:var(--muted); }
+  #endModal .danger{ background:var(--danger); color:#fff; border:none; border-radius:12px; padding:14px; font-size:16px; font-weight:700; width:100%; cursor:pointer; }
+  #endModal .cancel{ background:transparent; color:var(--accent); border:2px solid var(--accent); border-radius:12px; padding:12px; font-size:15px; font-weight:700; width:100%; margin-top:10px; cursor:pointer; }
+  .attemptInfo{margin-top:6px;font-size:14px;font-weight:700;color:var(--text);background:#f1f5f9;border-radius:10px;padding:10px;line-height:1.7;}
+  .filterRow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;}
+  .filterBtn{border:2px solid #475569;background:transparent;color:#cbd5e1;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+  .filterBtn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+</style>
+</head>
+<body>
+
+<div id="timerBar">
+  <span class="clockIcon">⏱</span>
+  <span id="timeLeft">60:00</span>
+</div>
+<div id="timerProgressOuter"><div id="timerProgressInner"></div></div>
+
+<div class="wrap">
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="startCard">
+    <h1>ICT &amp; Digital Skills — Practice Test</h1>
+    <p>150 sawalat, 1 ghanta (60 minute) ka waqt. Timer shuru hote he chalta rahega.</p>
+    <div id="resumeBox" class="hidden resumeBox">
+      <div class="resumeText" id="resumeText">Aapka pichla test adhoora hai.</div>
+      <button class="primary" id="resumeBtn">Resume Test</button>
+      <button class="secondary" id="discardBtn">Discard &amp; Start New</button>
+    </div>
+    <ul>
+      <li>⏱ Poora test 1 hour ka hai — timer hamesha upar show hoga.</li>
+      <li>➡️ Har page pr 10 sawal aayenge — sabhi 10 complete karein, phir <b>Next</b> se agle 10 pr jayein.</li>
+      <li>⏳ Waqt khatam ya 150 sawal mukammal hote he result aa jayega.</li>
+      <li>🔒 Kisi bhi option pr pehli dafa tap karne ke baad answer lock ho jata hai — dobara change nahi hoga.</li>
+      <li>⏹️ Beech mein rukna ho to <b>End Test</b> se abhi result dekh saktay hain.</li>
+      <li>💾 Site band ho jaye to bhi progress mehfooz rehta hai — wapis khol kar resume kar sakte hain.</li>
+      <li>🔁 Try Again se har baar naye order mein sawal aayenge.</li>
+    </ul>
+    <button class="primary" id="startBtn">Start Test</button>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="quizScreen" class="hidden">
+    <div class="progress" id="progressText">Questions 1–10 of 150</div>
+    <div class="progressBarOuter"><div class="progressBarInner" id="progressBar"></div></div>
+    <div class="endTestRow"><button class="endTestLink" id="endTestBtn">⏹ End Test &amp; See Result</button></div>
+
+    <div id="questionCards"></div>
+
+    <div class="navRow navRowSticky">
+      <button class="navBtn" id="prevBtn">Back</button>
+      <button class="primary" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <!-- END TEST CONFIRM MODAL -->
+  <div id="endModal" class="hidden">
+    <div class="box">
+      <h3>Test khatam karein?</h3>
+      <p id="endModalText">Jo sawal answer nahi huay wo "Left" count honge.</p>
+      <button class="danger" id="endYesBtn">Haan, Result Dikhao</button>
+      <button class="cancel" id="endNoBtn">Nahi, Test Jaari Rakhein</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="hidden resultCard">
+    <h1 id="resultTitle">Test Complete</h1>
+    <div class="scoreCircle" id="scoreCircle" style="--pct:0">
+      <div class="inner">
+        <div class="big" id="scorePct">0%</div>
+        <div class="small">Score</div>
+      </div>
+    </div>
+    <div class="statsRow">
+      <div class="stat correct"><div class="num" id="correctCount">0</div><div class="lbl">Correct</div></div>
+      <div class="stat wrong"><div class="num" id="wrongCount">0</div><div class="lbl">Wrong</div></div>
+      <div class="stat skipped"><div class="num" id="skippedCount">0</div><div class="lbl">Left</div></div>
+    </div>
+    <div class="attemptInfo" id="attemptInfo"></div>
+    <div class="scrollHint">⬇ Neechay scroll krein — poora answer review yahan hai ⬇</div>
+  </div>
+
+  <!-- REVIEW / PREVIEW SECTION -->
+  <div id="reviewSection" class="hidden">
+    <div class="reviewHeading">Full Answer Review</div>
+    <div class="filterRow" id="filterRow"></div>
+    <div id="reviewCards"></div>
+    <button class="primary" id="tryAgainBtn">Try Again</button>
+  </div>
+
+</div>
+
+<script>
+const MCQ_DATA = [{"q": "Web designing is the process of?", "o": ["Planning, conceptualizing and implementing a website so it is functional and offers good user experience", "Repairing computer hardware", "Writing operating systems", "Installing network cables"], "a": 0}, {"q": "How many basic types of website are discussed in the lecture?", "o": ["Two (Static and Dynamic)", "Three", "Four", "Five"], "a": 0}, {"q": "Which type of website is the basic and easiest type to create?", "o": ["Static website", "Dynamic website", "E-commerce website", "Database-driven website"], "a": 0}, {"q": "Which of these is NOT required to create a static website?", "o": ["Database designing and web programming", "HTML", "CSS", "A web page"], "a": 0}, {"q": "A static website looks like a ___ because its code for each page is fixed.", "o": ["Printed page", "Moving video", "Live chat", "Online game"], "a": 0}, {"q": "Static websites are built using?", "o": ["HTML, CSS and JavaScript", "PHP and databases only", "Photoshop only", "Figma only"], "a": 0}, {"q": "Which language is used to code the pages of a static website?", "o": ["HTML", "PHP", "SQL", "Python only"], "a": 0}, {"q": "In a static website, the information on a page?", "o": ["Does not change because the code is fixed", "Changes on every visit", "Is fetched from a database", "Is generated by the server for each user"], "a": 0}, {"q": "A website whose content can change dynamically is called?", "o": ["Dynamic website", "Static website", "Offline website", "Printed website"], "a": 0}, {"q": "A dynamic website accesses its content from?", "o": ["A Content Management System (CMS) or a database", "A printed book", "Only fixed HTML files", "A calculator"], "a": 0}, {"q": "Why does a dynamic website's content update when the database is changed?", "o": ["Because it gets its content from the database", "Because HTML files are fixed", "Because CSS changes colors", "Because the browser is updated"], "a": 0}, {"q": "To generate dynamic content, a dynamic website may use?", "o": ["Server-side scripting, client-side scripting or both", "Only printed pages", "Only images", "No scripting at all"], "a": 0}, {"q": "Dynamic websites generate web pages?", "o": ["On the fly, in response to user input or database queries", "Once and never again", "Only in printed form", "Only at night"], "a": 0}, {"q": "Which of the following is a server-side scripting language mentioned in the lecture?", "o": ["PHP", "HTML", "CSS", "JPEG"], "a": 0}, {"q": "HTML stands for?", "o": ["Hyper-text Markup Language", "High Text Machine Language", "Hyper Transfer Mode Language", "Home Tool Markup Language"], "a": 0}, {"q": "CSS stands for?", "o": ["Cascading Style Sheet", "Computer Style System", "Creative Samples Sheet", "Coded Server Script"], "a": 0}, {"q": "PHP stands for?", "o": ["Hypertext Pre-Processor", "Personal Home Printer", "Public Hyper Protocol", "Programmed HTML Page"], "a": 0}, {"q": "What is the role of HTML in a web page?", "o": ["It structures the content", "It styles and formats the content", "It handles server-side functionality", "It stores the database"], "a": 0}, {"q": "What is the role of CSS in a web page?", "o": ["It styles and formats the content", "It structures the content", "It stores user data", "It connects to the internet"], "a": 0}, {"q": "What is the role of PHP in a website?", "o": ["Server-side scripting and dynamic web functionality", "Only coloring text", "Only creating logos", "Only editing photos"], "a": 0}, {"q": "Which of the following is an online platform used to develop a website?", "o": ["Google Sites", "Microsoft Paint", "Notepad", "Calculator"], "a": 0}, {"q": "Blogger.com is an example of?", "o": ["An online platform used to develop a website", "A programming language", "A database system", "A type of hardware"], "a": 0}, {"q": "Which of these is a design/collaboration tool mentioned for web designing?", "o": ["Figma", "Excel", "Outlook", "Task Manager"], "a": 0}, {"q": "Which of these Adobe tools is listed for web designing?", "o": ["Adobe Photoshop and Adobe Illustrator", "Adobe Reader only", "Adobe Flash Drive", "Adobe Antivirus"], "a": 0}, {"q": "Which feature supports a smooth user experience by making it easy to reach different sections?", "o": ["Clear and intuitive navigation", "Complicated menus", "Hidden links", "Slow loading pages"], "a": 0}, {"q": "Mobile responsiveness means the website is?", "o": ["Fully optimized to work well on mobile devices", "Only usable on desktop", "Printed on mobile paper", "Available only offline"], "a": 0}, {"q": "Why should a website include a help and support section?", "o": ["So users can find FAQs and customer support contact information", "To hide information from users", "To slow down the website", "To remove user accounts"], "a": 0}, {"q": "Which of the following improves user trust on a website?", "o": ["Providing safety and security", "Asking for unnecessary personal data", "Removing privacy policies", "Using broken links"], "a": 0}, {"q": "A local bakery that only shows its menu, address and timings can best use a?", "o": ["Static website", "Dynamic website with online payments", "Social media only", "Database server"], "a": 0}, {"q": "An online fashion store where customers browse, shop and interact with the brand needs a?", "o": ["Dynamic website", "Static website", "Printed catalogue", "Single HTML page"], "a": 0}, {"q": "Connecting and interacting with individuals or groups through online platforms is called?", "o": ["Social networking", "Web hosting", "Data mining", "Cloud storage"], "a": 0}, {"q": "Social networking platforms enable users to?", "o": ["Create profiles and share photos, updates, posts and videos", "Only send printed letters", "Only edit hardware", "Only compile programs"], "a": 0}, {"q": "Social networking platforms provide a virtual space for people to?", "o": ["Communicate, collaborate and build relationships", "Repair computers", "Print documents", "Store only music"], "a": 0}, {"q": "Which of the following is one of the largest social networking platforms?", "o": ["Facebook", "Notepad", "Windows", "Excel"], "a": 0}, {"q": "Twitter is described as a ___ platform.", "o": ["Microblogging", "Photo editing", "Video-only", "Online shopping"], "a": 0}, {"q": "Short messages posted on Twitter are known as?", "o": ["Tweets", "Snaps", "Reels", "Pins"], "a": 0}, {"q": "Which platform is centered around sharing photos and videos, with hashtags to discover content?", "o": ["Instagram", "LinkedIn", "Blogger", "Google Sites"], "a": 0}, {"q": "LinkedIn is primarily used for?", "o": ["Professional networking and career-related purposes", "Sharing disappearing photos", "Short entertaining videos", "Playing games"], "a": 0}, {"q": "Snapchat is known for?", "o": ["Temporary content that disappears after a specific time", "Professional resumes", "Microblogging", "Permanent video archives"], "a": 0}, {"q": "YouTube is primarily a?", "o": ["Video-sharing platform", "Professional job portal", "Messaging-only app", "Search engine only"], "a": 0}, {"q": "Which platform is a short-form video-sharing platform known for viral content and duets?", "o": ["TikTok", "LinkedIn", "Twitter", "Facebook Groups"], "a": 0}, {"q": "Which of the following is an advantage of social networking?", "o": ["Connects people around the world", "Causes addiction", "Wastes students' time", "Spreads rumors"], "a": 0}, {"q": "Which is an advantage of social networking for businesses?", "o": ["It provides a marketing facility", "It increases cybercrime", "It reduces brand visibility", "It removes customers"], "a": 0}, {"q": "Which of the following is a disadvantage of social networking?", "o": ["Addiction and time wasting, especially for students", "Instant notifications", "Fun and entertainment", "Easier collaboration"], "a": 0}, {"q": "Which of these is a disadvantage of social networking?", "o": ["Privacy issues and cybercrimes like fraud and account hacking", "Sharing ideas easily", "Connecting with family", "Marketing opportunities"], "a": 0}, {"q": "Social networking can disturb a user's routine, such as?", "o": ["Sleeping time", "Keyboard layout", "Screen resolution", "Battery size"], "a": 0}, {"q": "Is social networking risky?", "o": ["Yes, due to privacy concerns, scams and fake information", "No, it has no risks", "Only on computers", "Only for adults"], "a": 0}, {"q": "Which of the following is a common risk of social networking?", "o": ["Online harassment and scams", "Faster internet", "Lower electricity bills", "Better hardware"], "a": 0}, {"q": "What is crucial to maintain a positive online experience?", "o": ["Responsible use and awareness of privacy and security settings", "Sharing passwords", "Accepting all friend requests", "Posting location everywhere"], "a": 0}, {"q": "Does social networking help in e-commerce?", "o": ["Yes, it facilitates customer engagement, brand visibility and sales", "No, it has no connection", "Only by printing catalogues", "Only by reducing sales"], "a": 0}, {"q": "Which of these is a component of social networking that tracks online conversations about a brand?", "o": ["Social listening", "Social selling", "Social influencing", "Social printing"], "a": 0}, {"q": "Which component uses credibility and following to sway opinions and promote products?", "o": ["Social influencing", "Social listening", "Social selling", "Social storing"], "a": 0}, {"q": "Social selling means?", "o": ["Sales professionals use social media to find, engage and build relationships with potential customers", "Selling printed newspapers", "Selling social media passwords", "Closing social media accounts"], "a": 0}, {"q": "Digital marketing refers to?", "o": ["Online marketing campaigns appearing on a computer, phone, tablet or other device", "Magazine advertisements only", "Billboards only", "Direct mail only"], "a": 0}, {"q": "Which of these is called traditional marketing?", "o": ["Magazine ads, billboards and direct mail", "Search engine marketing", "Paid social ads", "Online video ads"], "a": 0}, {"q": "Affiliate marketing is also known as?", "o": ["Influencer marketing", "Email marketing", "Native advertising", "Print marketing"], "a": 0}, {"q": "The goal of content marketing is to?", "o": ["Use storytelling and information sharing to increase brand awareness and make readers take action", "Remove all online content", "Only run paid search ads", "Hide the brand from customers"], "a": 0}, {"q": "Pay Per Click (PPC) is a ___ form of digital marketing.", "o": ["Short-term, as the ad ends when payment stops", "Permanent, free of cost", "Printed", "Unpaid"], "a": 0}, {"q": "The goal of SEO (Search Engine Optimization) is to?", "o": ["Rank a business higher in Google search results", "Block search engines", "Delete websites", "Reduce website traffic"], "a": 0}, {"q": "Native advertising is a paid advertising form in which ads?", "o": ["Match the look, feel and function of the media where they appear", "Look very different from the page", "Always appear as banner pop-ups", "Are hidden from users"], "a": 0}, {"q": "Artificial Intelligence is the ability of a digital computer or computer-controlled robot to?", "o": ["Perform tasks commonly associated with intelligent beings", "Only store data", "Only display images", "Only connect to the internet"], "a": 0}, {"q": "AI is also defined as?", "o": ["An intelligent entity created by humans", "A natural living organism", "A type of cable", "A printing machine"], "a": 0}, {"q": "AI is capable of performing tasks intelligently?", "o": ["Without being explicitly instructed", "Only with step-by-step human control", "Only offline", "Only in factories"], "a": 0}, {"q": "The goals of artificial intelligence include?", "o": ["Computer-enhanced learning, reasoning and perception", "Only data storage", "Only printing", "Only typing"], "a": 0}, {"q": "AI refers to the simulation or approximation of ___ in machines.", "o": ["Human intelligence", "Animal strength", "Electric power", "Network speed"], "a": 0}, {"q": "AI can relieve humans of repetitive tasks so that they can?", "o": ["Focus on high-value work", "Stop working completely", "Avoid learning", "Work only manually"], "a": 0}, {"q": "In which industries is AI used today?", "o": ["From finance to healthcare and others", "Only in games", "Only in cooking", "Only in sports"], "a": 0}, {"q": "Which AI area makes predictions based on patterns in input data?", "o": ["Machine Learning", "Computer Vision", "Conversational AI", "Anomaly Detection"], "a": 0}, {"q": "Which AI area identifies unusual activities based on pattern changes?", "o": ["Anomaly Detection", "Machine Learning", "Natural Language Processing", "Computer Vision"], "a": 0}, {"q": "Which AI area deals with understanding human communication and emotions in written and spoken language?", "o": ["Natural Language Processing", "Computer Vision", "Anomaly Detection", "Machine Learning"], "a": 0}, {"q": "Which AI area detects, recognizes and analyzes objects, faces and text in images/videos?", "o": ["Computer Vision", "Conversational AI", "Anomaly Detection", "Natural Language Processing"], "a": 0}, {"q": "Chatbots and intelligent conversation tools belong to?", "o": ["Conversational AI", "Computer Vision", "Anomaly Detection", "Image editing"], "a": 0}, {"q": "Machine learning (ML) is a subset of?", "o": ["Artificial intelligence", "Web designing", "Digital marketing", "Social networking"], "a": 0}, {"q": "Machine learning involves training algorithms to?", "o": ["Make predictions or decisions based on input data", "Only store files", "Only display web pages", "Only print documents"], "a": 0}, {"q": "Unlike traditional programming, ML algorithms?", "o": ["Learn patterns from large datasets", "Have all rules explicitly defined by programmers", "Never use data", "Cannot make decisions"], "a": 0}, {"q": "Which of the following is an example of machine learning in practice?", "o": ["Fraud detection", "Typing on a keyboard", "Printing a page", "Switching on a monitor"], "a": 0}, {"q": "Image recognition, speech recognition, fraud detection and personalization are examples of?", "o": ["Machine learning in practice", "Static web pages", "Plagiarism", "Cyberbullying"], "a": 0}, {"q": "NLP is a subfield of AI that trains machines to?", "o": ["Understand, interpret and generate human language", "Repair hardware", "Design logos", "Create databases only"], "a": 0}, {"q": "Which of these is an application of NLP?", "o": ["Language translation, sentiment analysis and chatbots", "Face unlock only", "GPS only", "Photo printing"], "a": 0}, {"q": "Natural Language Understanding (NLU) is a sub-branch of NLP that deals with?", "o": ["Nuances through machine reading comprehension, not just literal meanings", "Only hardware repair", "Only image filters", "Only data storage"], "a": 0}, {"q": "Speech recognition is also called?", "o": ["Speech-to-text", "Text-to-speech", "Image-to-text", "Text-to-image"], "a": 0}, {"q": "Part of speech tagging determines?", "o": ["The part of speech of a word based on its use and context", "The speed of a computer", "The color of an image", "The size of a file"], "a": 0}, {"q": "Word sense disambiguation is used to?", "o": ["Select the correct meaning of a word with multiple meanings", "Compress files", "Detect viruses", "Resize images"], "a": 0}, {"q": "Named entity recognition identifies words or phrases as?", "o": ["Useful entities, such as a location or a person's name", "Computer viruses", "Image formats", "Web addresses only"], "a": 0}, {"q": "Sentiment analysis attempts to extract?", "o": ["Subjective qualities such as attitudes, emotions and sarcasm from text", "Only numbers from tables", "Only images from videos", "Only file names"], "a": 0}, {"q": "Natural language generation is the task of?", "o": ["Putting structured information into human language", "Converting voice into text", "Detecting faces", "Recognizing objects"], "a": 0}, {"q": "Which AI application helps find the optimal route and traffic congestion on your phone?", "o": ["Maps and navigation", "Autocorrect", "Face filters", "Plagiarism checker"], "a": 0}, {"q": "Using face ID to unlock a phone is an example of?", "o": ["Face recognition", "Face detection only", "Speech recognition", "Autocorrect"], "a": 0}, {"q": "Autocorrect in text editors uses AI techniques such as?", "o": ["Machine learning, deep learning and natural language processing", "Only manual typing", "Only printing", "Only hardware sensors"], "a": 0}, {"q": "Recommendation systems suggest movies or products by?", "o": ["Learning your behavior and interests from your online activity", "Choosing randomly without any data", "Reading printed catalogues", "Ignoring your searches"], "a": 0}, {"q": "Digital citizenship means?", "o": ["Using the internet safely and responsibly", "Using the internet without any rules", "Only owning a computer", "Only using social media"], "a": 0}, {"q": "Digital citizenship encourages using the internet in a way that is?", "o": ["Good for both you and society", "Good only for you", "Harmful to others", "Free of any ethics"], "a": 0}, {"q": "Another name for digital etiquette is?", "o": ["Netiquette", "Cyber law", "E-commerce", "Digital marketing"], "a": 0}, {"q": "Digital etiquette is similar to?", "o": ["Having good manners in real life", "Writing software code", "Building a network", "Repairing devices"], "a": 0}, {"q": "Digital literacy means?", "o": ["Knowing how to use different types of technology and judging online information", "Only typing fast", "Only owning a smartphone", "Only playing games"], "a": 0}, {"q": "Why is it important to be aware of what you read online?", "o": ["Because the internet sometimes shares wrong information", "Because all online information is correct", "Because websites never change", "Because reading is not allowed"], "a": 0}, {"q": "Digital safety and security includes?", "o": ["Not sharing personal information and avoiding scams", "Sharing passwords with friends", "Clicking on every link", "Accepting unknown requests"], "a": 0}, {"q": "Which part of being a good digital citizen involves spreading kindness and being respectful?", "o": ["Online etiquette", "Digital literacy", "Digital security", "Web hosting"], "a": 0}, {"q": "Which of these is a rule of digital etiquette?", "o": ["Use language that is not strong or offensive", "Use abusive language when angry", "Post anything you like", "Forward every message you receive"], "a": 0}, {"q": "Before sending a message, you should?", "o": ["Go through and review it", "Send it immediately without reading", "Delete it", "Ask a stranger to send it"], "a": 0}, {"q": "Which is a digital etiquette rule about attachments?", "o": ["Try to keep attachments small if you can", "Always send very large attachments", "Never read attachments", "Attach unrelated files"], "a": 0}, {"q": "Which of the following is an example of inappropriate digital etiquette?", "o": ["Posting inappropriate messages or media on social networks", "Reviewing a message before sending", "Respecting others' privacy", "Staying on topic"], "a": 0}, {"q": "Cyberbullying is bullying that uses?", "o": ["Digital technologies", "Only physical force", "Only face-to-face speech", "Only printed letters"], "a": 0}, {"q": "Cyberbullying involves repetitive actions with the intention of?", "o": ["Frightening, angering or shaming the targeted person", "Helping the targeted person", "Entertaining everyone equally", "Teaching the targeted person"], "a": 0}, {"q": "Which of the following is an example of cyberbullying?", "o": ["Spreading false information or sharing embarrassing photos/videos", "Sending a thank-you message", "Sharing a study tip", "Congratulating a friend"], "a": 0}, {"q": "Impersonating someone through fake accounts to send mean messages is?", "o": ["Cyberbullying", "Digital literacy", "Netiquette", "Fair use"], "a": 0}, {"q": "Where can cyberbullying happen online?", "o": ["Social media, messaging apps, forums, email and online gaming", "Only on social media", "Only in emails", "Only in offline places"], "a": 0}, {"q": "According to the lecture, which was the most common form of online harassment among US students?", "o": ["Spreading of rumors (33.2%)", "Negative comments (28.7%)", "Sexual remarks (12.1%)", "Hacking accounts"], "a": 0}, {"q": "Which of these is an effect of cyberbullying?", "o": ["Increased stress, anxiety, depression and low self-esteem", "Improved confidence", "Better concentration", "Increased friendships"], "a": 0}, {"q": "Cyberbullying can cause emotional effects that are?", "o": ["Long-lasting, even after the bullying has stopped", "Gone immediately", "Only physical", "Never serious"], "a": 0}, {"q": "Which is a behavior change that may indicate a person is being cyberbullied?", "o": ["Avoiding friends or social events and hiding their phone screen", "Becoming more social", "Showing excitement about devices", "Improved concentration on work"], "a": 0}, {"q": "Which sign of a cyberbullied person relates to their device use?", "o": ["Displaying anger when using their phone or computer", "Constantly sharing screen with everyone", "Buying new devices", "Learning to code"], "a": 0}, {"q": "If you are being cyberbullied, you should first?", "o": ["Discuss the situation with a trusted adult such as a parent, teacher or counselor", "Keep it a secret forever", "Bully the person back", "Delete all evidence"], "a": 0}, {"q": "Why should victims preserve proof of cyberbullying?", "o": ["Screenshots of messages or posts can be used as evidence when reporting", "To post them for revenge", "To make the bully famous", "To avoid telling anyone"], "a": 0}, {"q": "Which feature can a victim use on social media against a bully?", "o": ["Block the bully", "Follow the bully", "Share passwords with the bully", "Tag the bully in posts"], "a": 0}, {"q": "Where can users find rules about acceptable content on social media sites?", "o": ["Terms and Conditions or Community Standards/Guidelines", "Advertisement pages", "Device manuals", "Printed newspapers"], "a": 0}, {"q": "In emergencies of cyberbullying or harassment, what is advised?", "o": ["Contact local law enforcement", "Ignore the situation", "Take revenge", "Delete your account only"], "a": 0}, {"q": "Which is a proactive step to avoid online problems?", "o": ["Use recommended privacy settings offered by the platform", "Make all accounts public", "Share your location in every photo", "Share your passwords"], "a": 0}, {"q": "Why should you avoid retaliatory actions against bullies?", "o": ["Because most bullies seek a reaction", "Because bullies never stop", "Because retaliation is rewarded", "Because platforms ban victims first"], "a": 0}, {"q": "On public computers, you should?", "o": ["Log out from accounts when not in use", "Leave accounts logged in", "Save all passwords", "Share your login with others"], "a": 0}, {"q": "Ethical use of copyrighted material is essential to?", "o": ["Respect the rights of creators and uphold intellectual property principles", "Copy any content freely", "Remove creators' names", "Sell others' work"], "a": 0}, {"q": "Before using copyrighted material for commercial purposes, you should?", "o": ["Obtain proper permission from the copyright holder", "Copy it without asking", "Change the title only", "Delete the creator's name"], "a": 0}, {"q": "Which type of license specifies the ways a work can be used and is an example of an open license?", "o": ["Creative Commons", "Trademark", "Piracy", "Watermark"], "a": 0}, {"q": "Why should you cite sources and give credit?", "o": ["To provide proper attribution to the original creator", "To hide the original creator", "To increase file size", "To avoid reading the source"], "a": 0}, {"q": "Citing sources is necessary in?", "o": ["Research papers, presentations and artworks", "Only printed books", "Only paid projects", "No situation at all"], "a": 0}, {"q": "In educational settings, you should?", "o": ["Follow copyright guidelines and use available educational exceptions", "Ignore copyright completely", "Resell classroom materials", "Remove credits from sources"], "a": 0}, {"q": "Works in the public domain are?", "o": ["Not protected by copyright or have expired copyright", "Protected forever", "Owned only by companies", "Illegal to use"], "a": 0}, {"q": "Even for public domain works, you must still?", "o": ["Give credit, or you are guilty of plagiarism", "Pay royalties always", "Hide the source", "Claim it as your own"], "a": 0}, {"q": "Which of these is an example of public domain material?", "o": ["Most federal publications", "A new commercial song", "A paid software", "A private photograph"], "a": 0}, {"q": "When sharing content on the internet, it is better to?", "o": ["Link to or embed copyrighted content rather than copy it", "Copy and paste the whole content", "Remove the owner's name", "Circumvent protective measures"], "a": 0}, {"q": "For commercial or professional use of copyrighted images, music or software, you should?", "o": ["Purchase or license it through legitimate means", "Download it from any website", "Use it without paying", "Modify the name only"], "a": 0}, {"q": "According to fair use guidelines, a majority of the content you create must be?", "o": ["Your own", "Copied from others", "Taken from one source", "Left without credit"], "a": 0}, {"q": "Which is most likely fair use?", "o": ["Including a few relevant photos to support your own ideas in a blog post", "Republishing an entire tutorial even with a link", "Using photos with only a few lines of commentary", "Copying a whole article"], "a": 0}, {"q": "For something to be fair use, you must?", "o": ["Give full credit to the copyright holder", "Hide the creator's name", "Charge money for it", "Claim it as your own"], "a": 0}, {"q": "Fair use is easier to claim when the use is?", "o": ["Noncommercial", "For selling products", "For printing on T-shirts for profit", "For reselling the work"], "a": 0}, {"q": "Which is NOT fair use according to the lecture?", "o": ["Selling images of TV shows on T-shirts", "Posting images with funny captions and commentary", "Quoting a small part with credit", "Using a single tip from a tutorial with credit"], "a": 0}, {"q": "The two crucial aspects of ensuring content originality are?", "o": ["Avoiding plagiarism and content accuracy and integrity", "Copying and sharing", "Hacking and phishing", "Marketing and selling"], "a": 0}, {"q": "Plagiarism is?", "o": ["Presenting someone else's work as your own", "Creating original content", "Citing every source", "Using a license"], "a": 0}, {"q": "Which of these is plagiarism?", "o": ["Copying and pasting text from a website into your project without credit", "Quoting with credit", "Paraphrasing and citing", "Writing your own ideas"], "a": 0}, {"q": "If you use a quote, no matter how small, you must?", "o": ["Give credit to the original author", "Not mention the source", "Change a few words only", "Pay a fee"], "a": 0}, {"q": "Which tools help detect unintended similarities with published text?", "o": ["Anti-plagiarism software such as Copyscape and Grammarly", "Antivirus software", "Video editors", "Spreadsheet software"], "a": 0}, {"q": "Content accuracy and integrity means content shared through ICT platforms should be free from?", "o": ["Misinformation, fake news and manipulation", "Images", "Hyperlinks", "Headings"], "a": 0}, {"q": "To handle misleading information, fake or misleading content should be?", "o": ["Reported, with fact-checking tools and labels integrated by platforms", "Shared widely", "Ignored by everyone", "Deleted without checking"], "a": 0}, {"q": "Information shared should be based on?", "o": ["Facts rather than opinions, and opinions should be stated transparently", "Rumors", "Personal guesses only", "Hidden opinions"], "a": 0}, {"q": "Copyright protects the original content you post on your?", "o": ["Blog, website or research paper", "Neighbor's website only", "Government websites only", "Competitor's blog"], "a": 0}, {"q": "Which of the following helps you find out if someone has copied your work online?", "o": ["Plagiarism search services like Copyscape.com", "Antivirus scans", "Disk cleanup", "Screen savers"], "a": 0}, {"q": "Adding watermarks and metadata to photos and documents helps to?", "o": ["Dissuade copycats by marking ownership", "Increase file size only", "Hide the content", "Delete the content"], "a": 0}, {"q": "A Creative Commons license allows you to?", "o": ["Give others access to your work while maintaining ownership", "Give up all ownership", "Block everyone from viewing", "Sell your work to anyone"], "a": 0}, {"q": "A trademark can be?", "o": ["A name, word, slogan, design or symbol that identifies a product or organization", "Only a printed book", "Only a software error", "Only a copied logo"], "a": 0}, {"q": "Piracy is defined as?", "o": ["The unauthorised use of someone else's work", "Creating original work", "Giving credit to creators", "Buying a licensed product"], "a": 0}];
+</script>
+<script>
+(function(){
+  const TOTAL_TIME = 60 * 60; // seconds
+  const PAGE_SIZE = 10;
+  const STORAGE_KEY = 'ict_digital_skills_mcq_test_state_v1';
+
+  let questions = [];
+  let currentPage = 0;
+  let totalPages = 1;
+  let userAnswers = [];
+  let timeRemaining = TOTAL_TIME;
+  let testEndTime = null; // absolute timestamp (ms) when the test should end
+  let timerInterval = null;
+  let testActive = false;
+
+  const startScreen = document.getElementById('startScreen');
+  const quizScreen = document.getElementById('quizScreen');
+  const resultScreen = document.getElementById('resultScreen');
+  const reviewSection = document.getElementById('reviewSection');
+  const reviewCards = document.getElementById('reviewCards');
+  const timerBar = document.getElementById('timerBar');
+  const timeLeftEl = document.getElementById('timeLeft');
+  const timerProgressInner = document.getElementById('timerProgressInner');
+
+  const progressText = document.getElementById('progressText');
+  const progressBar = document.getElementById('progressBar');
+  const questionCards = document.getElementById('questionCards');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const endTestBtn = document.getElementById('endTestBtn');
+
+  const startBtn = document.getElementById('startBtn');
+  const tryAgainBtn = document.getElementById('tryAgainBtn');
+  const resumeBox = document.getElementById('resumeBox');
+  const resumeText = document.getElementById('resumeText');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const discardBtn = document.getElementById('discardBtn');
+
+  // ---- Persistence (localStorage) ----
+  function saveState(){
+    if(!testActive) return;
+    try{
+      const state = { questions, userAnswers, currentPage, testEndTime, testActive };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }catch(e){ /* storage unavailable - fail silently, test still works in-memory */ }
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+
+  function clearState(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){ /* ignore */ }
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Build a fresh randomized question set: shuffle question order AND
+  // shuffle each question's option order (so answer_index is remapped).
+  function buildQuestionSet(){
+    const shuffledQs = shuffle(MCQ_DATA);
+    return shuffledQs.map(item => {
+      const optIdx = [0,1,2,3];
+      const shuffledOptIdx = shuffle(optIdx);
+      const newOptions = shuffledOptIdx.map(i => item.o[i]);
+      const newAnswer = shuffledOptIdx.indexOf(item.a);
+      return { q: item.q, o: newOptions, a: newAnswer };
+    });
+  }
+
+  function formatTime(sec){
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+
+  function tick(){
+    timeRemaining = Math.max(0, Math.round((testEndTime - Date.now()) / 1000));
+    updateTimerDisplay();
+    if(timeRemaining <= 0){
+      clearInterval(timerInterval);
+      finishTest();
+    }
+  }
+
+  function startTimer(){
+    clearInterval(timerInterval);
+    tick();
+    timerInterval = setInterval(tick, 1000);
+  }
+
+  function updateTimerDisplay(){
+    const remaining = Math.max(timeRemaining, 0);
+    timeLeftEl.textContent = formatTime(remaining);
+    const pct = Math.max(0, Math.min(100, (remaining / TOTAL_TIME) * 100));
+    timerProgressInner.style.width = pct + '%';
+    timerBar.classList.remove('warn','danger');
+    if(remaining <= 60){
+      timerBar.classList.add('danger');
+    } else if(remaining <= 300){
+      timerBar.classList.add('warn');
+    }
+  }
+
+  function startTest(resumeState){
+    if(resumeState){
+      questions = resumeState.questions;
+      userAnswers = resumeState.userAnswers;
+      currentPage = resumeState.currentPage;
+      testEndTime = resumeState.testEndTime;
+    } else {
+      questions = buildQuestionSet();
+      userAnswers = new Array(questions.length).fill(null);
+      currentPage = 0;
+      testEndTime = Date.now() + TOTAL_TIME * 1000;
+    }
+    totalPages = Math.ceil(questions.length / PAGE_SIZE);
+    testActive = true;
+
+    startScreen.classList.add('hidden');
+    resultScreen.classList.add('hidden');
+    reviewSection.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+
+    saveState();
+    startTimer();
+    renderPage();
+  }
+
+  function pageBounds(page){
+    const start = page * PAGE_SIZE;
+    const end = Math.min(start + PAGE_SIZE, questions.length);
+    return {start, end};
+  }
+
+  function renderPage(){
+    const total = questions.length;
+    const {start, end} = pageBounds(currentPage);
+    const letters = ['A','B','C','D'];
+
+    progressText.textContent = `Questions ${start+1}–${end} of ${total}`;
+    progressBar.style.width = (end/total*100) + '%';
+
+    questionCards.innerHTML = '';
+    for(let i = start; i < end; i++){
+      const q = questions[i];
+      const card = document.createElement('div');
+      card.className = 'qCard';
+
+      const numDiv = document.createElement('div');
+      numDiv.className = 'qNum';
+      numDiv.textContent = 'Q' + (i+1);
+      card.appendChild(numDiv);
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'qText';
+      textDiv.textContent = q.q;
+      card.appendChild(textDiv);
+
+      if(userAnswers[i] === 'skipped'){
+        const badge = document.createElement('div');
+        badge.className = 'skippedBadge';
+        badge.textContent = 'Skipped — tap an option to answer';
+        card.appendChild(badge);
+      }
+
+      const optsDiv = document.createElement('div');
+      optsDiv.className = 'options';
+      q.o.forEach((optText, idx) => {
+        const opt = document.createElement('div');
+        opt.className = 'option';
+        if(userAnswers[i] === idx) opt.classList.add('selected');
+        opt.innerHTML = `<span class="optLetter">${letters[idx]}</span><span>${escapeHtml(optText)}</span>`;
+        const locked = (typeof userAnswers[i] === 'number');
+        if(locked) opt.style.cursor = 'default';
+        opt.addEventListener('click', () => {
+          // Answer lock: pehli dafa tap ke baad answer change nahi hoga
+          if(typeof userAnswers[i] === 'number') return;
+          userAnswers[i] = idx;
+          saveState();
+          renderPage();
+        });
+        optsDiv.appendChild(opt);
+      });
+      card.appendChild(optsDiv);
+
+      const skipRow = document.createElement('div');
+      skipRow.className = 'skipRow';
+      const skipBtn = document.createElement('button');
+      skipBtn.className = 'skipBtn';
+      skipBtn.textContent = (userAnswers[i] === 'skipped') ? 'Skipped' : 'Skip this question';
+      if(typeof userAnswers[i] === 'number'){ skipBtn.style.display = 'none'; }
+      skipBtn.addEventListener('click', () => {
+        if(typeof userAnswers[i] === 'number') return; // already answered - locked
+        userAnswers[i] = 'skipped';
+        saveState();
+        renderPage();
+      });
+      skipRow.appendChild(skipBtn);
+      card.appendChild(skipRow);
+
+      questionCards.appendChild(card);
+    }
+
+    prevBtn.disabled = (currentPage === 0);
+
+    const pageComplete = isPageComplete(currentPage);
+    nextBtn.disabled = !pageComplete;
+    nextBtn.textContent = (currentPage === totalPages - 1) ? 'Finish' : 'Next';
+  }
+
+  function isPageComplete(page){
+    const {start, end} = pageBounds(page);
+    for(let i = start; i < end; i++){
+      if(userAnswers[i] === null || userAnswers[i] === undefined) return false;
+    }
+    return true;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function goNext(){
+    if(!isPageComplete(currentPage)) return;
+    if(currentPage < totalPages - 1){
+      currentPage++;
+      saveState();
+      renderPage();
+      window.scrollTo({top:0, behavior:'instant'});
+    } else {
+      finishTest();
+    }
+  }
+
+  function goPrev(){
+    if(currentPage > 0){
+      currentPage--;
+      saveState();
+      renderPage();
+      window.scrollTo({top:0, behavior:'instant'});
+    }
+  }
+
+  function finishTest(){
+    if(!testActive) return;
+    testActive = false;
+    clearInterval(timerInterval);
+    clearState();
+
+    let correct = 0, wrong = 0, skipped = 0;
+    questions.forEach((q, i) => {
+      const ans = userAnswers[i];
+      if(ans === null || ans === undefined || ans === 'skipped'){
+        skipped++;
+      } else if(ans === q.a){
+        correct++;
+      } else {
+        wrong++;
+      }
+    });
+
+    const total = questions.length;
+    const pct = Math.round((correct/total)*100);
+
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('wrongCount').textContent = wrong;
+    document.getElementById('skippedCount').textContent = skipped;
+    document.getElementById('scorePct').textContent = pct + '%';
+    document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+
+    startScreen.classList.add('hidden');
+    quizScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+    timerBar.classList.remove('warn','danger');
+
+    document.getElementById('attemptInfo').innerHTML =
+      `Attempt kiye: <b>${correct+wrong}</b> / ${total}<br>` +
+      `<span style="color:var(--good)">Sahi: ${correct}</span> &nbsp;|&nbsp; <span style="color:var(--danger)">Ghalat: ${wrong}</span><br>` +
+      `<span style="color:var(--muted)">Left (chhoray huay): ${skipped}</span>`;
+    reviewFilter = 'all';
+    renderReview();
+  }
+
+  let reviewFilter = 'all';
+  function statusOf(i){
+    const a = userAnswers[i];
+    if(a === null || a === undefined || a === 'skipped') return 'left';
+    return a === questions[i].a ? 'correct' : 'wrong';
+  }
+  function renderFilters(){
+    const row = document.getElementById('filterRow');
+    const c = {all:questions.length, correct:0, wrong:0, left:0};
+    questions.forEach((q,i)=>{ c[statusOf(i)]++; });
+    const names = {all:'All', correct:'Sahi', wrong:'Ghalat', left:'Left'};
+    row.innerHTML = '';
+    Object.keys(names).forEach(k=>{
+      const b = document.createElement('button');
+      b.className = 'filterBtn' + (reviewFilter===k ? ' active' : '');
+      b.textContent = names[k] + ' (' + c[k] + ')';
+      b.addEventListener('click', ()=>{ reviewFilter = k; renderReview(); });
+      row.appendChild(b);
+    });
+  }
+  function renderReview(){
+    renderFilters();
+    const letters = ['A','B','C','D'];
+    reviewCards.innerHTML = '';
+
+    questions.forEach((q, i) => {
+      if(reviewFilter !== 'all' && statusOf(i) !== reviewFilter) return;
+      const userIdx = userAnswers[i];
+      const isSkipped = (userIdx === null || userIdx === undefined || userIdx === 'skipped');
+      const isCorrect = (!isSkipped && userIdx === q.a);
+
+      const card = document.createElement('div');
+      card.className = 'reviewCard';
+
+      const numRow = document.createElement('div');
+      numRow.className = 'qNum';
+      const tagClass = isSkipped ? 'tagSkipped' : (isCorrect ? 'tagCorrect' : 'tagWrong');
+      const tagText = isSkipped ? 'Left' : (isCorrect ? 'Correct' : 'Wrong');
+      numRow.innerHTML = `<span>Q${i+1}</span><span class="statusTag ${tagClass}">${tagText}</span>`;
+      card.appendChild(numRow);
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'qText';
+      textDiv.textContent = q.q;
+      card.appendChild(textDiv);
+
+      const optsDiv = document.createElement('div');
+      optsDiv.className = 'options';
+      q.o.forEach((optText, idx) => {
+        const opt = document.createElement('div');
+        opt.className = 'option reviewOnly';
+        if(idx === q.a){
+          opt.classList.add('correctOpt');
+        } else if(idx === userIdx){
+          opt.classList.add('wrongOpt');
+        }
+        opt.innerHTML = `<span class="optLetter">${letters[idx]}</span><span>${escapeHtml(optText)}</span>`;
+        optsDiv.appendChild(opt);
+      });
+      card.appendChild(optsDiv);
+
+      reviewCards.appendChild(card);
+    });
+
+    reviewSection.classList.remove('hidden');
+  }
+
+  startBtn.addEventListener('click', () => startTest());
+  tryAgainBtn.addEventListener('click', () => startTest());
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+
+  const endModal = document.getElementById('endModal');
+  const endModalText = document.getElementById('endModalText');
+  endTestBtn.addEventListener('click', () => {
+    const answered = userAnswers.filter(a => typeof a === 'number').length;
+    const left = questions.length - answered;
+    endModalText.textContent = 'Aap ne ' + answered + ' sawal attempt kiye hain, ' + left + ' abhi baaqi hain. Baaqi sawal "Left" count honge.';
+    endModal.classList.remove('hidden');
+  });
+  document.getElementById('endNoBtn').addEventListener('click', () => {
+    endModal.classList.add('hidden');
+  });
+  document.getElementById('endYesBtn').addEventListener('click', () => {
+    endModal.classList.add('hidden');
+    finishTest();
+    window.scrollTo({top:0, behavior:'instant'});
+  });
+
+  discardBtn.addEventListener('click', () => {
+    clearState();
+    resumeBox.classList.add('hidden');
+  });
+
+  // ---- Resume-on-load: check for an in-progress test saved in this browser ----
+  (function initResume(){
+    const saved = loadState();
+    if(!saved || !saved.testActive || !Array.isArray(saved.questions)){
+      return;
+    }
+    const remainingMs = saved.testEndTime - Date.now();
+    if(remainingMs <= 0){
+      // Time was already up while the site was closed - jump straight to the result.
+      questions = saved.questions;
+      userAnswers = saved.userAnswers;
+      testActive = true;
+      finishTest();
+      return;
+    }
+    const answeredCount = saved.userAnswers.filter(a => a !== null && a !== undefined).length;
+    resumeText.textContent = `Aapka pichla test adhoora hai — ${answeredCount} / ${saved.questions.length} sawal ho chukay hain. Waqt baaqi: ${formatTime(Math.round(remainingMs/1000))}.`;
+    resumeBox.classList.remove('hidden');
+    resumeBtn.addEventListener('click', () => startTest(saved));
+  })();
+
+  updateTimerDisplay();
+})();
+</script>
+
+</body>
+</html>
